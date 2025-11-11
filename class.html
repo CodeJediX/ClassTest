@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tuition Classes — Listings</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #6b7280;
+    --accent: #0ea5a4;
+    --glass: rgba(255, 255, 255, 0.6);
+    --shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    --radius: 12px;
+    --glass-2: rgba(10, 10, 10, 0.03);
+    --border-color: #e6eef4;
+    --gradient-start: #eef6f8;
+    --gradient-end: var(--bg);
+  }
+
+  [data-theme="dark"] {
+    --bg: #0b1120;
+    --card: #131c31;
+    --text: #e2e8f0;
+    --muted: #8c9bb6;
+    --accent: #06b6d4;
+    --glass: rgba(25, 35, 58, 0.6);
+    --shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    --glass-2: rgba(255, 255, 255, 0.05);
+    --border-color: #334155;
+    --gradient-start: #131c31;
+    --gradient-end: var(--bg);
+  }
+
+  * { box-sizing: border-box }
+
+  body {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg, var(--gradient-start) 0%, var(--gradient-end) 60%);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* == PRELOADER CSS == */
+  .preloader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    transition: opacity 0.4s ease-out 0.2s, visibility 0.4s ease-out 0.2s;
+    opacity: 1;
+  }
+  .preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .loader-book {
+    width: 100px;
+    height: 75px;
+    position: relative;
+    perspective: 1000px;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+  }
+  .book-page {
+    position: absolute;
+    width: 50px;
+    height: 75px;
+    background: var(--card);
+    border: 1px solid var(--border-color);
+    top: 0;
+    right: 0;
+    transform-origin: left;
+    animation: page-flip 1.8s infinite cubic-bezier(0.6, 0.04, 0.98, 0.335);
+  }
+  .book-cover {
+    position: absolute;
+    width: 50px;
+    height: 75px;
+    background: var(--card);
+    border: 1px solid var(--border-color);
+    top: 0;
+    left: 0;
+    border-radius: 4px 0 0 4px;
+  }
+  .book-page:nth-child(1) { animation-delay: 0s; }
+  .book-page:nth-child(2) { animation-delay: -0.9s; }
+  
+  @keyframes page-flip {
+    0%, 20% { transform: rotateY(0deg); }
+    80%, 100% { transform: rotateY(-180deg); }
+  }
+
+  /* Container */
+  .wrap { max-width: var(--max-width); margin: 28px auto; padding: 20px; display: grid; grid-template-columns: 320px 1fr; gap: 20px }
+  header.site-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px }
+  .brand { display: flex; gap: 12px; align-items: center }
+  .logo {
+    width: 56px; height: 56px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), #06b6d4);
+    display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; box-shadow: var(--shadow)
+  }
+  .site-title { font-size: 18px; font-weight: 700 }
+  .site-sub { color: var(--muted); font-size: 13px }
+
+  /* Search / filters */
+  .panel { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; transition: background 0.3s }
+  .search-box { display: flex; gap: 8px; align-items: center }
+  .search-box input, .select, .small {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color);
+    background: transparent; font-size: 14px; color: var(--text); transition: border-color 0.3s;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); background-position: right 10px center; background-repeat: no-repeat; background-size: 16px; padding-right: 32px; }
+  [data-theme="dark"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%238c9bb6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E"); }
+  .search-row { display: flex; gap: 8px; margin-top: 12px }
+  .filters { margin-top: 12px; display: grid; gap: 8px }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px }
+  .tag { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--glass-2); font-size: 13px; cursor: pointer; transition: all .18s }
+  
+  /* == NEW: Tag hover micro-interaction == */
+  .tag:not(.active):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+  }
+  [data-theme="dark"] .tag:not(.active):hover {
+    box-shadow: 0 4px 10px rgba(0,0,0, 0.1);
+  }
+  
+  .tag.active { background: linear-gradient(90deg, var(--accent), #06b6d4); color: white; border: none; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(10, 163, 160, 0.15) }
+
+  /* Listing area */
+  .list-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px }
+  .sort { display: flex; gap: 8px; align-items: center }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; align-items: start }
+
+  /* Card */
+  .card {
+    background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow);
+    transition: transform .28s, box-shadow .28s; cursor: default;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out, box-shadow 0.28s;
+  }
+  .card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .card:hover { transform: translateY(-8px); box-shadow: 0 18px 45px rgba(12, 18, 60, 0.12) }
+  [data-theme="dark"] .card:hover { box-shadow: 0 18px 45px rgba(0,0,0,0.25); }
+  .thumb { height: 160px; background: #e8eef3; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s }
+  .card:hover .thumb img { transform: scale(1.06) }
+  .card-body { padding: 14px }
+  .title { font-weight: 700; margin: 0 0 6px; font-size: 15px; color: var(--text) }
+  .meta { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 13px; margin-bottom: 12px }
+  .price { font-weight: 700; color: var(--accent) }
+  .tags-row { display: flex; gap: 8px; flex-wrap: wrap }
+  .chip { font-size: 12px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--glass-2); background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent) }
+  [data-theme="dark"] .chip { background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent) }
+
+  /* == NEW: No Results Animation == */
+  .no-results {
+    animation: fade-in 0.5s ease-out;
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* actions */
+  .btn { padding: 10px 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-family: inherit; transition: all 0.2s; }
+  .btn.contact { background: linear-gradient(90deg, var(--accent), #06b6d4); color: white; }
+  .btn.contact:hover { box-shadow: 0 8px 20px rgba(10, 163, 160, 0.15) }
+  .btn.details { background: transparent; border: 1px solid var(--glass-2); color: var(--text) }
+  .btn.details:hover { background: var(--glass-2); }
+  [data-theme="dark"] .btn.details { border: 1px solid var(--border-color); }
+  [data-theme="dark"] .btn.details:hover { background: var(--glass-2); }
+  .btn:active { transform: translateY(1px); }
+  
+  /* right column map + featured */
+  .map { height: 420px; border-radius: 12px; background: linear-gradient(180deg, #e6f7f9, #f7fbfc); display: flex; align-items: center; justify-content: center; color: var(--muted); font-weight: 700; box-shadow: var(--shadow); border: 1px dashed rgba(10, 10, 10, 0.02) }
+  [data-theme="dark"] .map { background: linear-gradient(180deg, #131f36, #0c1322); border-color: rgba(255,255,255,0.03); }
+  .map small { display: block; font-size: 12px; color: var(--muted); margin-top: 6px; font-weight: 600 }
+  .featured { display: grid; gap: 10px; margin-top: 16px }
+  .featured-item { display: flex; gap: 8px; align-items: center; border-radius: 8px; padding: 6px; transition: background 0.2s; cursor: pointer; }
+  .featured-item:hover { background: var(--glass-2); }
+  [data-theme="dark"] .featured-item:hover { background: var(--glass-2); }
+
+  /* pagination */
+  .pager { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 12px 0 }
+  .page { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-2); cursor: pointer; background: transparent; color: var(--text); }
+  [data-theme="dark"] .page { border: 1px solid var(--border-color); }
+  .page.active { background: var(--accent); color: white; border: none; transform: translateY(-2px) }
+
+  /* modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(2, 6, 23, 0.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 60; opacity: 0; pointer-events: none; transition: opacity .25s ease-out;
+  }
+  .modal-backdrop.open { opacity: 1; pointer-events: auto }
+  .modal {
+    width: min(760px, 95%); background: var(--card); border-radius: 12px;
+    overflow: hidden; box-shadow: 0 30px 80px rgba(2, 6, 23, 0.35);
+    transform: translateY(20px) scale(0.98);
+    opacity: 0;
+    transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+  }
+  .modal-backdrop.open .modal {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  .modal .row { display: flex; gap: 16px }
+  .modal .left { flex: 1 }
+  .modal .right { width: 320px; padding: 16px; background: linear-gradient(180deg, #fbfeff, #f5fbfb) }
+  [data-theme="dark"] .modal .right { background: linear-gradient(180deg, #10182b, #0d1526) }
+  .close-x {
+    position: absolute; right: 14px; top: 12px; border-radius: 8px; padding: 6px; cursor: pointer;
+    background: transparent; border: 0; color: var(--muted); font-size: 16px; line-height: 1;
+  }
+  .close-x:hover { background: var(--glass-2); }
+  .rating { display: inline-block; background: #f1fbfb; border-radius: 8px; padding: 6px 8px; font-weight: 700; color: #067d77; margin-left: 6px }
+  [data-theme="dark"] .rating { background: #0c2b2a; color: #08d3c7; }
+
+  /* "Back to Top" Button */
+  #toTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 50;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    font-size: 20px;
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    box-shadow: var(--shadow);
+  }
+  #toTopBtn.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  /* == NEW: Page Load Animations == */
+  .wrap > aside:first-of-type { /* Filter panel */
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.5s ease-out 0.4s, transform 0.5s ease-out 0.4s;
+  }
+  .wrap > main { /* Main content */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out 0.5s, transform 0.5s ease-out 0.5s;
+  }
+  .wrap > aside.right-col { /* Map panel */
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.5s ease-out 0.4s, transform 0.5s ease-out 0.4s;
+  }
+  
+  body.is-loaded .wrap > aside:first-of-type,
+  body.is-loaded .wrap > main,
+  body.is-loaded .wrap > aside.right-col {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* responsive */
+  @media (max-width: 980px) {
+    .wrap { grid-template-columns: 1fr; padding: 12px }
+    .map { height: 260px }
+    .right-col { order: 2 }
+    .panel { margin-bottom: 10px }
+    
+    /* Adjust page load anims for mobile stack */
+    .wrap > aside:first-of-type,
+    .wrap > main,
+    .wrap > aside.right-col {
+      transform: translateY(20px);
+      transition: opacity 0.5s ease-out 0.4s, transform 0.5s ease-out 0.4s;
+    }
+    .wrap > main { transition-delay: 0.5s; }
+    .wrap > aside.right-col { transition-delay: 0.6s; }
+  }
+  @media (max-width: 640px) {
+    .list-header { flex-direction: column; align-items: stretch; }
+    .sort { justify-content: space-between; }
+    .sort .select { width: auto; flex: 1; }
+    .modal .row { flex-direction: column; }
+    .modal .right { width: 100%; }
+  }
+  @media (max-width: 520px) { .thumb { height: 140px } }
+</style>
+</head>
+<body class=""> <div class="preloader" id="preloader">
+  <div class="loader-book">
+    <div class="book-cover"></div>
+    <div class="book-page"></div>
+    <div class="book-page"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">T</div>
+      <div>
+        <div class="site-title">TuitionFinder</div>
+        <div class="site-sub">Find local & online tuition classes — fast</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="font-size:13px;color:var(--muted)">Showing <span id="result-count">0</span> results</div>
+      <button id="darkToggle" class="btn details" title="Toggle theme">Dark</button>
+    </div>
+  </header>
+
+  <aside>
+    <div class="panel">
+      <div style="font-weight:700">Search classes</div>
+      <div class="search-box" style="margin-top:10px">
+        <input id="searchInput" placeholder="Search by subject, tutor, city..." />
+        <button id="searchBtn" class="btn details">Search</button>
+      </div>
+
+      <div class="search-row">
+        <select id="citySelect" class="select">
+          <option value="">All Cities</option>
+          <option>Colombo</option><option>Gampaha</option><option>Matara</option><option>Kandy</option>
+        </select>
+        <select id="typeSelect" class="select">
+          <option value="">All Types</option><option value="online">Online</option><option value="group">Group</option><option value="home">Home</option>
+        </select>
+      </div>
+
+      <div class="filters">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Popular categories</div>
+          <small style="color:var(--muted);font-size:12px">tap to filter</small>
+        </div>
+        <div class="tags" id="categoryTags">
+          </div>
+
+        <div style="margin-top:12px">
+          <div style="font-weight:700">Fee range (LKR)</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input id="minFee" placeholder="Min" class="small" type="number" />
+            <input id="maxFee" placeholder="Max" class"small" type="number" />
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="applyFee" class="btn details">Apply</button>
+            <button id="clearFilters" class="btn">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div style="font-weight:700;margin-bottom:8px">Featured</div>
+      <div class="featured" id="featuredList">
+        </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="panel">
+      <div class="list-header">
+        <div>
+          <div style="font-weight:700;font-size:18px">Tuition classes in Sri Lanka</div>
+          <div style="color:var(--muted);font-size:13px">Discover nearby and online classes — designed for all grades</div>
+        </div>
+        <div class="sort">
+          <label style="color:var(--muted);font-size:13px">Sort</label>
+          <select id="sortBy" class="select" style="width:160px">
+            <option value="relevance">Most relevant</option>
+            <option value="rating">Top rated</option>
+            <option value="fee-low">Fee: Low → High</option>
+            <option value="fee-high">Fee: High → Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid" id="cardsGrid" aria-live="polite">
+        </div>
+
+      <div class="pager" id="pager">
+        </div>
+    </div>
+  </main>
+
+  <aside class="right-col">
+    <div class="map panel">
+      <div>
+        <div>Map View (placeholder)</div>
+        <small>Interactive map can be integrated (Leaflet / Google Maps)</small>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <div style="font-weight:700">Create your ad</div>
+      <p style="color:var(--muted);font-size:13px;margin-top:8px">
+        Teachers & institutes — post your class for free. Add images, price and contact details.
+      </p>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn contact" onclick="alert('Go to post page - placeholder')">Post Free Ad</button>
+        <button class="btn details" onclick="alert('How it works - placeholder')">How it works</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
+  <div class="modal" role="document">
+    <div style="position:relative">
+      <button class="close-x" onclick="closeModal()">✕</button>
+      <div style="padding:16px">
+        <div class="row">
+          <div class="left">
+            <div style="height:220px;background:#eef6f8;border-radius:10px;overflow:hidden;margin-bottom:12px">
+              <img id="modalImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block" />
+            </div>
+            <h2 id="modalTitle" style="margin:6px 0 6px"></h2>
+            <div style="color:var(--muted);font-size:14px" id="modalMeta"></div>
+            <p id="modalDesc" style="margin-top:12px;color:#334155;line-height:1.5"></p>
+            </div>
+          <div class="right">
+            <div style="font-weight:700">Contact / Book</div>
+            <div style="margin-top:8px">
+              <div><strong>Fee:</strong> <span id="modalFee" class="price"></span></div>
+              <div style="margin-top:8px"><strong>Type:</strong> <span id="modalType"></span></div>
+              <div style="margin-top:8px"><strong>Location:</strong> <span id="modalLocation"></span></div>
+              <div style="margin-top:10px">
+                <button id="callBtn" class="btn contact" style="width:100%;margin-bottom:8px">Call</button>
+                <button id="whBtn" class="btn details" style="width:100%">WhatsApp</button>
+              </div>
+            </div>
+            <div style="margin-top:12px">
+              <div style="font-weight:700">Tutor rating</div>
+              <div style="margin-top:6px"><span id="modalRating" class="rating">4.8</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+<button id="toTopBtn" class="btn contact" title="Go to top">↑</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const classesData = [
+    { id: 1, title: "O/L Mathematics - Colombo North", city: "Colombo", type: "group", fee: 1200, rating: 4.7, tags: ["Mathematics", "O/L", "Group"], img: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1200&q=60", contact: "+94712345678", desc: "Focused O/L maths tuition with past-paper practice, small groups and progress reports." },
+    { id: 2, title: "Advanced Physics (A/L) - Private Online", city: "Online", type: "online", fee: 3000, rating: 4.9, tags: ["Physics", "A/L", "Online"], img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=60", contact: "+94771234567", desc: "Exam-oriented A/L physics tutoring, conceptual clarity and numerical problem solving." },
+    { id: 3, title: "Sinhala Language - Home Tuition", city: "Kandy", type: "home", fee: 900, rating: 4.6, tags: ["Sinhala", "Primary", "Home"], img: "https://images.unsplash.com/photo-1498079022511-d15614cb1c02?auto=format&fit=crop&w=1200&q=60", contact: "+94771234568", desc: "Home tuition for primary levels: reading, writing and oral practice." },
+    { id: 4, title: "English Speaking & Grammar - Gampaha", city: "Gampaha", type: "group", fee: 800, rating: 4.5, tags: ["English", "Spoken", "Group"], img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=60", contact: "+94771234569", desc: "Group classes focused on speaking, listening and grammar for everyday English." },
+    { id: 5, title: "Chemistry Crash Course (A/L) - Matara", city: "Matara", type: "group", fee: 2500, rating: 4.8, tags: ["Chemistry", "A/L", "Crash"], img: "https://images.unsplash.com/photo-1534751516642-a1af1ef9a3f8?auto=format&fit=crop&w=1200&q=60", contact: "+94771234560", desc: "Intensive weekend crash course covering the full A/L syllabus." },
+    { id: 6, title: "Coding for Kids - Colombo", city: "Colombo", type: "group", fee: 1400, rating: 4.6, tags: ["Coding", "Kids", "Group"], img: "https://images.unsplash.com/photo-1504274066651-8d31a536b11a?auto=format&fit=crop&w=1200&q=60", contact: "+94771234561", desc: "Beginner-friendly coding classes (scratch & python) for kids aged 8-14." },
+    { id: 7, title: "English Medium Math (O/L) - Online", city: "Online", type: "online", fee: 1100, rating: 4.4, tags: ["Mathematics", "O/L", "Online"], img: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1200&q=60", contact: "+94771234562", desc: "Online math class in English medium with real-time quizzes." },
+    { id: 8, title: "History & Civics - Private (Home)", city: "Colombo", type: "home", fee: 1000, rating: 4.3, tags: ["History", "Home", "O/L"], img: "https://images.unsplash.com/photo-1513938709626-033611b8cc03?auto=format&fit=crop&w=1200&q=60", contact: "+94771234563", desc: "Private home tuition for O/L history and civic topics with notes." },
+    { id: 9, title: "Biology A/L (Online)", city: "Online", type: "online", fee: 2800, rating: 4.8, tags: ["Biology", "A/L", "Online"], img: "https://images.unsplash.com/photo-1532094349884-3517c82332a9?auto=format&fit=crop&w=1200&q=60", contact: "+94771234564", desc: "Comprehensive A/L Biology coverage with diagrams and mock exams." },
+    { id: 10, title: "IELTS Preparation - Kandy", city: "Kandy", type: "group", fee: 1500, rating: 4.7, tags: ["English", "IELTS", "Group"], img: "https://images.unsplash.com/photo-1455849318743-b2233052fcff?auto=format&fit=crop&w=1200&q=60", contact: "+94771234565", desc: "IELTS Academic & General training. Focus on all four modules." }
+  ];
+
+  // UI references
+  const cardsGrid = document.getElementById('cardsGrid');
+  const resultCount = document.getElementById('result-count');
+  const categoryTags = document.getElementById('categoryTags');
+  const featuredList = document.getElementById('featuredList');
+  const pager = document.getElementById('pager');
+  const modalBackdrop = document.getElementById('modalBackdrop');
+
+  // State
+  let state = {
+    q: '', city: '', type: '', tags: [], minFee: null, maxFee: null, sort: 'relevance', page: 1, perPage: 6
+  };
+
+  // build unique tags and populate tag controls
+  const uniqueTags = Array.from(new Set(classesData.flatMap(c => c.tags))).sort();
+  uniqueTags.forEach(tag => {
+    const el = document.createElement('button');
+    el.className = 'tag'; el.textContent = tag;
+    el.onclick = () => { toggleTag(tag); el.classList.toggle('active'); render(); };
+    categoryTags.appendChild(el);
+  });
+
+  // featured - pick top rated 3
+  const featured = classesData.slice().sort((a, b) => b.rating - a.rating).slice(0, 3);
+  featured.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'featured-item';
+    d.innerHTML = `<div style="width:56px;height:56px;border-radius:8px;overflow:hidden;flex-shrink:0;"><img src="${f.img}" style="width:100%;height:100%;object-fit:cover"/></div>
+    <div style="font-size:14px"><strong style="display:block;color:var(--text);">${f.title}</strong><small style="color:var(--muted)">${f.city} • LKR ${f.fee}</small></div>`;
+    d.onclick = () => openModal(f.id);
+    featuredList.appendChild(d);
+  });
+
+  // Intersection Observer for card animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 }); 
+
+  // render cards with filters
+  function render() {
+    document.querySelectorAll('.card.is-visible').forEach(card => observer.unobserve(card));
+
+    const filtered = classesData.filter(c => {
+      if (state.q) {
+        const q = state.q.toLowerCase();
+        if (!(c.title.toLowerCase().includes(q) || c.tags.join(' ').toLowerCase().includes(q) || c.city.toLowerCase().includes(q))) return false;
+      }
+      if (state.city && c.city !== state.city) return false;
+      if (state.type && c.type !== state.type) return false;
+      if (state.tags.length && !state.tags.every(t => c.tags.includes(t))) return false;
+      if (state.minFee !== null && c.fee < state.minFee) return false;
+      if (state.maxFee !== null && c.fee > state.maxFee) return false;
+      return true;
+    });
+
+    if (state.sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
+    if (state.sort === 'fee-low') filtered.sort((a, b) => a.fee - b.fee);
+    if (state.sort === 'fee-high') filtered.sort((a, b) => b.fee - a.fee);
+
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total / state.perPage));
+    if (state.page > pages) state.page = pages;
+    const start = (state.page - 1) * state.perPage;
+    const pageItems = filtered.slice(start, start + state.perPage);
+
+    resultCount.textContent = total;
+    cardsGrid.innerHTML = '';
+    
+    if (pageItems.length === 0) {
+      // == NEW: Added class for animation ==
+      cardsGrid.innerHTML = `<div class="no-results" style="grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 0;">No classes found matching your criteria.</div>`;
+    }
+
+    pageItems.forEach((item, index) => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.style.transitionDelay = `${index * 60}ms`;
+
+      card.innerHTML = `
+        <div class="thumb"><img src="${item.img}" alt="${escapeHtml(item.title)}" loading="lazy" /></div>
+        <div class="card-body">
+          <h3 class="title">${item.title}</h3>
+          <div class="meta"><div>${item.city}</div><div class="price">LKR ${item.fee}</div></div>
+          <div class="tags-row">${item.tags.map(t => `<span class="chip">${t}</span>`).join('')}</div>
+          <div class="actions">
+            <button class="btn contact" data-id="${item.id}">Contact</button>
+            <button class="btn details" data-id="${item.id}">Details</button>
+          </div>
+        </div>
+      `;
+      card.querySelector('.contact').addEventListener('click', () => openModal(item.id));
+      card.querySelector('.details').addEventListener('click', () => openModal(item.id));
+
+      cardsGrid.appendChild(card);
+      observer.observe(card);
+    });
+
+    // pager UI
+    pager.innerHTML = '';
+    if (pages > 1) {
+      for (let i = 1; i <= pages; i++) {
+        const p = document.createElement('button'); p.className = 'page' + (i === state.page ? ' active' : ''); p.textContent = i;
+        p.onclick = () => { state.page = i; render(); window.scrollTo({ top: 120, behavior: 'smooth' }); };
+        pager.appendChild(p);
+      }
+      const info = document.createElement('div'); info.style.marginLeft = '8px'; info.style.color = 'var(--muted)'; info.style.fontSize = '13px';
+      info.textContent = `Page ${state.page} of ${pages}`;
+      pager.appendChild(info);
+    }
+  }
+
+  // basic helpers
+  function toggleTag(tag) {
+    const idx = state.tags.indexOf(tag);
+    if (idx === -1) state.tags.push(tag); else state.tags.splice(idx, 1);
+    state.page = 1;
+  }
+  function escapeHtml(s) { return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'); }
+
+  // search handlers
+  document.getElementById('searchBtn').addEventListener('click', () => {
+    state.q = document.getElementById('searchInput').value.trim();
+    state.page = 1; render();
+  });
+  document.getElementById('searchInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { document.getElementById('searchBtn').click(); } });
+
+  document.getElementById('citySelect').addEventListener('change', (e) => { state.city = e.target.value; state.page = 1; render(); });
+  document.getElementById('typeSelect').addEventListener('change', (e) => { state.type = e.target.value; state.page = 1; render(); });
+  document.getElementById('sortBy').addEventListener('change', (e) => { state.sort = e.target.value; render(); });
+
+  document.getElementById('applyFee').addEventListener('click', () => {
+    const min = parseInt(document.getElementById('minFee').value) || null;
+    const max = parseInt(document.getElementById('maxFee').value) || null;
+    state.minFee = min; state.maxFee = max; state.page = 1; render();
+  });
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    state = { q: '', city: '', type: '', tags: [], minFee: null, maxFee: null, sort: 'relevance', page: 1, perPage: 6 };
+    document.getElementById('searchInput').value = '';
+    document.getElementById('citySelect').value = '';
+    document.getElementById('typeSelect').value = '';
+    document.getElementById('minFee').value = '';
+    document.getElementById('maxFee').value = '';
+    document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+    document.getElementById('sortBy').value = 'relevance';
+    render();
+  });
+
+  // modal functions
+  window.openModal = (id) => { 
+    const item = classesData.find(x => x.id === id);
+    if (!item) return;
+    document.getElementById('modalImg').src = item.img;
+    document.getElementById('modalTitle').textContent = item.title;
+    document.getElementById('modalMeta').textContent = `${item.city} • ${item.tags.join(', ')}`;
+    document.getElementById('modalDesc').textContent = item.desc;
+    document.getElementById('modalFee').textContent = `LKR ${item.fee}`;
+    document.getElementById('modalType').textContent = item.type;
+    document.getElementById('modalLocation').textContent = item.city;
+    document.getElementById('modalRating').textContent = item.rating;
+    document.getElementById('callBtn').onclick = () => { window.location.href = `tel:${item.contact}`; };
+    document.getElementById('whBtn').onclick = () => { window.open(`https://wa.me/${item.contact.replace(/\D/g, '')}`, '_blank'); };
+    modalBackdrop.classList.add('open'); modalBackdrop.setAttribute('aria-hidden', 'false');
+  }
+  window.closeModal = () => { 
+    modalBackdrop.classList.remove('open'); modalBackdrop.setAttribute('aria-hidden', 'true');
+  }
+  modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+
+  // PRELOADER & PAGE ANIMATION LOGIC
+  window.onload = () => {
+    const preloader = document.getElementById('preloader');
+    preloader.classList.add('fade-out');
+    
+    // == NEW: Trigger page animations AFTER preloader transition ==
+    preloader.addEventListener('transitionend', () => {
+      document.body.classList.add('is-loaded');
+    }, { once: true }); // 'once: true' removes the listener after it fires
+  };
+
+  // "Back to Top" LOGIC
+  const toTopBtn = document.getElementById('toTopBtn');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      toTopBtn.classList.add('show');
+    } else {
+      toTopBtn.classList.remove('show');
+    }
+  }, { passive: true });
+  toTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Robust Dark Toggle LOGIC
+  const darkToggle = document.getElementById('darkToggle');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  function setMode(isDark) {
+    if (isDark) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      darkToggle.textContent = 'Light';
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      darkToggle.textContent = 'Dark';
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
+  darkToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.hasAttribute('data-theme');
+    setMode(!isDark);
+  });
+
+  // Load saved theme
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    setMode(savedTheme === 'dark');
+  } else {
+    // == CHANGED: Default to light mode per your request ==
+    setMode(false); 
+  }
+  
+  // Listen for OS changes
+  prefersDark.addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) { // Only if user hasn't set a preference
+      setMode(e.matches);
+    }
+  });
+
+  // initial render
+  render();
+
+}); // End DOMContentLoaded
+</script>
+</body>
+</html>
